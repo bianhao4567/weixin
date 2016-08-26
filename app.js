@@ -1,6 +1,7 @@
 var express = require('express')
 var path = require('path')
 var bodyParser = require('body-parser')
+var mysql = require('mysql')
 var port = process.env.PORT || 3000
 var app = express()
 
@@ -12,7 +13,49 @@ app.listen(port)
 
 console.log('imooc started on port ' + port)
 
+var pool = mysql.createPool({
+  host: 'localhost',
+  user: 'root',
+  password: '123456',
+  database: 'platform'
+})
+
+pool.on('connection', function(connection) { 
+  // connection.query('SET SESSION auto_increment_increment=1');
+  console.log('adsasdssad')
+})
+
+executeSql('select * from zx_user', function(err, results) {
+  if (err) {
+    console.log(err)
+    return
+  }
+  console.log(results)
+})
+
+function executeSql(sql, callback) {
+  pool.getConnection(function(err,connection){
+    if(!connection || err){
+      callback(err,null)
+    }else{
+      connection.query(sql,function(err,result){
+        connection.release();
+        callback(err,result);
+      })
+    }
+  });
+}
+
 app.get('/', function(req, res) {
+
+  executeSql('select * from zx_user', function(err, results) {
+    if (err) {
+      console.log(err)
+      return
+    }
+    console.log(results)
+  })
+
   res.render('index', {
     title: 'imooc 首页',
     movies: [{
