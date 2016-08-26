@@ -22,18 +22,21 @@ var pool = mysql.createPool({
 
 pool.on('connection', function(connection) { 
   // connection.query('SET SESSION auto_increment_increment=1');
-  console.log('adsasdssad')
+  console.log('连接建立成功!')
 })
 
-executeSql('select * from zx_user', function(err, results) {
-  if (err) {
-    console.log(err)
-    return
+// executeSql('select * from zx_user')
+
+function executeSql(sql, params, callback) {
+
+  if (params) {
+    if (typeof params === 'function') {
+      callback = params
+      
+    }
+
   }
-  console.log(results)
-})
 
-function executeSql(sql, callback) {
   pool.getConnection(function(err,connection){
     if(!connection || err){
       callback(err,null)
@@ -53,37 +56,15 @@ app.get('/', function(req, res) {
       console.log(err)
       return
     }
+
     console.log(results)
+    res.render('index', {
+      title: 'imooc 首页',
+      movies: results
+    })
   })
 
-  res.render('index', {
-    title: 'imooc 首页',
-    movies: [{
-      title: '机械战警',
-      _id: 1,
-      poster: 'http://r3.ykimg.com/05160000530EEB63675839160D0B79D5'
-    },{
-      title: '机械战警',
-      _id: 2,
-      poster: 'http://r3.ykimg.com/05160000530EEB63675839160D0B79D5'
-    },{
-      title: '机械战警',
-      _id: 3,
-      poster: 'http://r3.ykimg.com/05160000530EEB63675839160D0B79D5'
-    },{
-      title: '机械战警',
-      _id: 4,
-      poster: 'http://r3.ykimg.com/05160000530EEB63675839160D0B79D5'
-    },{
-      title: '机械战警',
-      _id: 5,
-      poster: 'http://r3.ykimg.com/05160000530EEB63675839160D0B79D5'
-    },{
-      title: '机械战警',
-      _id: 6,
-      poster: 'http://r3.ykimg.com/05160000530EEB63675839160D0B79D5'
-    }]
-  })
+  
 })
 
 app.get('/movie/:id', function(req, res) {
