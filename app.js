@@ -1,7 +1,7 @@
 var express = require('express')
 var path = require('path')
 var bodyParser = require('body-parser')
-var mysql = require('mysql')
+var dbutil = require('./utils/dbutil')
 var port = process.env.PORT || 3000
 var app = express()
 
@@ -13,58 +13,28 @@ app.listen(port)
 
 console.log('imooc started on port ' + port)
 
-var pool = mysql.createPool({
-  host: 'localhost',
-  user: 'root',
-  password: '123456',
-  database: 'platform'
-})
-
-pool.on('connection', function(connection) { 
-  // connection.query('SET SESSION auto_increment_increment=1');
-  console.log('连接建立成功!')
-})
-
-// executeSql('select * from zx_user')
-
-function executeSql(sql, params, callback) {
-
-  if (params) {
-    if (typeof params === 'function') {
-      callback = params
-      
-    }
-
-  }
-
-  pool.getConnection(function(err,connection){
-    if(!connection || err){
-      callback(err,null)
-    }else{
-      connection.query(sql,function(err,result){
-        connection.release();
-        callback(err,result);
-      })
-    }
-  });
+var u = {
+  'id': "20160421165756295554924928418561",
+  'name': 'aaaaaaa'
 }
+dbutil.insert('zx_user', u, function(err) {
+  if (err) {
+      console.log(err)
+    }
+})
 
 app.get('/', function(req, res) {
-
-  executeSql('select * from zx_user', function(err, results) {
+  dbutil.query('select * from zx_user', function(err, results) {
     if (err) {
       console.log(err)
       return
     }
-
     console.log(results)
     res.render('index', {
       title: 'imooc 首页',
       movies: results
     })
   })
-
-  
 })
 
 app.get('/movie/:id', function(req, res) {
